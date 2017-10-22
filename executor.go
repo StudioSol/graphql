@@ -60,9 +60,6 @@ func Execute(p ExecuteParams) (result *Result) {
 
 		defer func() {
 			if r := recover(); r != nil {
-				if p.PanicHandler != nil {
-					p.PanicHandler(ctx, r)
-				}
 				var err error
 				if r, ok := r.(error); ok {
 					err = gqlerrors.FormatError(r)
@@ -525,7 +522,6 @@ func resolveField(eCtx *executionContext, parentType *Object, source interface{}
 			if eCtx.PanicHandler != nil {
 				eCtx.PanicHandler(eCtx.Context, r)
 			}
-
 			var err error
 			if r, ok := r.(string); ok {
 				err = NewLocatedError(
@@ -601,9 +597,6 @@ func completeValueCatchingError(eCtx *executionContext, returnType Type, fieldAS
 	// catch panic
 	defer func() interface{} {
 		if r := recover(); r != nil {
-			if eCtx.PanicHandler != nil {
-				eCtx.PanicHandler(eCtx.Context, r)
-			}
 			//send panic upstream
 			if _, ok := returnType.(*NonNull); ok {
 				panic(r)
