@@ -2,8 +2,8 @@ package graphql_test
 
 import (
 	"encoding/json"
-	"github.com/graphql-go/graphql"
-	"github.com/graphql-go/graphql/testutil"
+	"github.com/StudioSol/graphql"
+	"github.com/StudioSol/graphql/testutil"
 	"reflect"
 	"testing"
 )

@@ -3,9 +3,9 @@ package graphql
 import (
 	"context"
 
-	"github.com/graphql-go/graphql/gqlerrors"
-	"github.com/graphql-go/graphql/language/parser"
-	"github.com/graphql-go/graphql/language/source"
+	"github.com/StudioSol/graphql/gqlerrors"
+	"github.com/StudioSol/graphql/language/parser"
+	"github.com/StudioSol/graphql/language/source"
 )
 
 type Params struct {

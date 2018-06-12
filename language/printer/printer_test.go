@@ -5,10 +5,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/graphql-go/graphql/language/ast"
-	"github.com/graphql-go/graphql/language/parser"
-	"github.com/graphql-go/graphql/language/printer"
-	"github.com/graphql-go/graphql/testutil"
+	"github.com/StudioSol/graphql/language/ast"
+	"github.com/StudioSol/graphql/language/parser"
+	"github.com/StudioSol/graphql/language/printer"
+	"github.com/StudioSol/graphql/testutil"
 )
 
 func parse(t *testing.T, query string) *ast.Document {
