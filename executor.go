@@ -263,7 +263,10 @@ func executeFieldsSerially(p executeFieldsParams) *Result {
 
 	finalResults := make(map[string]interface{}, len(p.Fields))
 	for responseName, fieldASTs := range p.Fields {
-		resolved, state := resolveField(p.ExecutionContext, p.ParentType, p.Source, fieldASTs)
+		resolved, state, err := resolveField(p.ExecutionContext, p.ParentType, p.Source, fieldASTs)
+		if err != nil {
+			 p.ExecutionContext.Errors = append(p.ExecutionContext.Errors, gqlerrors.FormatError(err))
+		}
 		if state.hasNoFieldDefs {
 			continue
 		}
@@ -287,7 +290,10 @@ func executeFields(p executeFieldsParams) *Result {
 
 	finalResults := make(map[string]interface{}, len(p.Fields))
 	for responseName, fieldASTs := range p.Fields {
-		resolved, state := resolveField(p.ExecutionContext, p.ParentType, p.Source, fieldASTs)
+		resolved, state, err := resolveField(p.ExecutionContext, p.ParentType, p.Source, fieldASTs)
+		if err != nil {
+			p.ExecutionContext.Errors = append(p.ExecutionContext.Errors, gqlerrors.FormatError(err))
+		}
 		if state.hasNoFieldDefs {
 			continue
 		}
@@ -514,7 +520,7 @@ type resolveFieldResultState struct {
 // figures out the value that the field returns by calling its resolve function,
 // then calls completeValue to complete promises, serialize scalars, or execute
 // the sub-selection-set for objects.
-func resolveField(eCtx *executionContext, parentType *Object, source interface{}, fieldASTs []*ast.Field) (result interface{}, resultState resolveFieldResultState) {
+func resolveField(eCtx *executionContext, parentType *Object, source interface{}, fieldASTs []*ast.Field) (result interface{}, resultState resolveFieldResultState, err error) {
 	// catch panic from resolveFn
 	var returnType Output
 	defer func() (interface{}, resolveFieldResultState) {
@@ -551,7 +557,7 @@ func resolveField(eCtx *executionContext, parentType *Object, source interface{}
 	fieldDef := getFieldDef(eCtx.Schema, parentType, fieldName)
 	if fieldDef == nil {
 		resultState.hasNoFieldDefs = true
-		return nil, resultState
+		return nil, resultState, nil
 	}
 	returnType = fieldDef.Type
 	resolveFn := fieldDef.Resolve
@@ -585,12 +591,8 @@ func resolveField(eCtx *executionContext, parentType *Object, source interface{}
 		Context: eCtx.Context,
 	})
 
-	if resolveFnError != nil {
-		panic(gqlerrors.FormatError(resolveFnError))
-	}
-
 	completed := completeValueCatchingError(eCtx, returnType, fieldASTs, info, result)
-	return completed, resultState
+	return completed, resultState, resolveFnError
 }
 
 func completeValueCatchingError(eCtx *executionContext, returnType Type, fieldASTs []*ast.Field, info ResolveInfo, result interface{}) (completed interface{}) {
