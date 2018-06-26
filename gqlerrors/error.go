@@ -9,6 +9,11 @@ import (
 	"github.com/StudioSol/graphql/language/source"
 )
 
+type ErrorWithType interface {
+	Error() string
+	Type() string
+}
+
 type Error struct {
 	Message       string
 	Stack         string
