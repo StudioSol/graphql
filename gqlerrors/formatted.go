@@ -9,6 +9,7 @@ import (
 type FormattedError struct {
 	Message   string                    `json:"message"`
 	Locations []location.SourceLocation `json:"locations"`
+	Type      string                    `json:"type,omitempty"`
 }
 
 func (g FormattedError) Error() string {
@@ -33,6 +34,12 @@ func FormatError(err error) FormattedError {
 		return FormattedError{
 			Message:   err.Error(),
 			Locations: err.Locations,
+		}
+	case ErrorWithType:
+		return FormattedError{
+			Message:   err.Error(),
+			Locations: []location.SourceLocation{},
+			Type:      err.Type(),
 		}
 	default:
 		return FormattedError{
